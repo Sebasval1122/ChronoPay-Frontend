@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { api } from "../api/client";
+import { api, getListData } from "../api/client";
 import type { Sucursal } from "../api/types";
 
 const ESTADO_INICIAL = { nombre: "", codigo: "", ciudad: "", direccion: "" };
@@ -13,8 +13,8 @@ export function SucursalesPage() {
   async function cargar() {
     setCargando(true);
     try {
-      const { data } = await api.get<Sucursal[]>("/api/sucursales/");
-      setSucursales(data);
+      const { data } = await api.get<Sucursal[] | { results: Sucursal[] }>("/api/sucursales/");
+      setSucursales(getListData(data));
     } finally {
       setCargando(false);
     }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../api/client";
+import { api, getListData } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import type { Marcaje } from "../api/types";
 
@@ -18,8 +18,8 @@ export function AsistenciaPage() {
   async function cargarMarcajes() {
     setCargando(true);
     try {
-      const { data } = await api.get<Marcaje[]>("/api/asistencia/marcajes/");
-      setMarcajes(data);
+      const { data } = await api.get<Marcaje[] | { results: Marcaje[] }>("/api/asistencia/marcajes/");
+      setMarcajes(getListData(data));
     } finally {
       setCargando(false);
     }

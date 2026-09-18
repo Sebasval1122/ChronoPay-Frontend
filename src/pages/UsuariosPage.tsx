@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { api } from "../api/client";
+import { api, getListData } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import type { Rol, Usuario } from "../api/types";
 
@@ -30,8 +30,8 @@ export function UsuariosPage() {
   async function cargar() {
     setCargando(true);
     try {
-      const { data } = await api.get<Usuario[]>("/api/usuarios/");
-      setUsuarios(data);
+      const { data } = await api.get<Usuario[] | { results: Usuario[] }>("/api/usuarios/");
+      setUsuarios(getListData(data));
     } finally {
       setCargando(false);
     }

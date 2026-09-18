@@ -21,6 +21,14 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
 
+export interface PaginatedResponse<T> {
+  results: T[];
+}
+
+export function getListData<T>(data: T[] | PaginatedResponse<T>): T[] {
+  return Array.isArray(data) ? data : data.results;
+}
+
 api.interceptors.request.use((config) => {
   const token = tokenStorage.getAccess();
   if (token) {
