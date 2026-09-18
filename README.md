@@ -49,11 +49,27 @@ Si cambias `.env`, reinicia el servidor de desarrollo para que Vite cargue los n
 - Inicio de sesión con JWT.
 - Registro público de una empresa y su primer administrador en `/registro`.
 - Redirección automática al inicio después de registrarse correctamente.
-- Consulta y registro de asistencia.
-- Consulta de nómina.
+- Consulta y registro de asistencia (marcar entrada/salida).
+- Consulta de nómina: crear período, generar/recalcular, ver desglose de horas extra y recargos por empleado, y descargar el comprobante en PDF.
 - Gestión de usuarios según permisos.
 - Gestión de sucursales para administradores generales.
 - Renovación automática del token de acceso cuando expira.
+
+**Integración con el backend confirmada de punta a punta**: registro de empresa → login → marcar asistencia → generar nómina, funcionando en conjunto con ChronoPay-Backend.
+
+## Pendientes conocidos
+
+El backend ya soporta estas funcionalidades vía API, pero todavía no tienen pantalla en este frontend:
+
+- Solicitudes de vacaciones/permisos (crear, aprobar, rechazar)
+- Historial de cambios salariales por empleado
+- Descarga de reportes en CSV
+
+Tampoco existen todavía (ni en el backend ni aquí):
+
+- Dashboard consolidado multi-sucursal
+- Dashboard de costos de nómina proyectados vs. reales
+- Sistema de notificaciones
 
 ## Roles
 
@@ -73,7 +89,7 @@ La autorización real siempre debe validarse en el backend. Las restricciones de
 | `/registro` | Público | Registro de empresa y administrador |
 | `/` | Autenticado | Página de inicio |
 | `/asistencia` | Autenticado | Marcajes y consulta de asistencia |
-| `/nomina` | Autenticado | Consulta de nómina |
+| `/nomina` | Autenticado | Consulta, creación y generación de nómina |
 | `/usuarios` | Admin o gerente | Gestión de usuarios |
 | `/sucursales` | Admin general | Gestión de sucursales |
 
@@ -82,7 +98,7 @@ La autorización real siempre debe validarse en el backend. Las restricciones de
 ```text
 src/
 ├── api/
-│   ├── client.ts       # Cliente Axios e interceptores JWT
+│   ├── client.ts       # Cliente Axios, interceptores JWT y helper getListData (normaliza respuestas paginadas)
 │   └── types.ts        # Tipos de la API
 ├── auth/
 │   ├── AuthContext.tsx # Login, logout y usuario actual
