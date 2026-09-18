@@ -1,46 +1,141 @@
-# ChronoPay — Frontend
+# ChronoPay Frontend
 
-Frontend en React + TypeScript + Vite + Tailwind para la plataforma de
-asistencia y nómina ChronoPay. Consume la API de
-[ChronoPay-Backend](https://github.com/Sebasval1122/ChronoPay-Backend).
-
-## Estructura
-
-```
-src/
-├── api/           # Cliente HTTP (axios) y tipos que reflejan los serializers del backend
-├── auth/          # Contexto de autenticación (JWT) y protección de rutas por rol
-├── components/    # Layout compartido (barra lateral con navegación por rol)
-├── pages/         # Una página por sección: login, inicio, asistencia, nómina, usuarios, sucursales
-├── App.tsx        # Definición de rutas
-└── main.tsx       # Punto de entrada
-```
+Aplicación web de ChronoPay para gestionar usuarios, sucursales, asistencia y nómina. Está construida con React, TypeScript, Vite, TailwindCSS, React Router y Axios, y consume la API REST del backend Django.
 
 ## Requisitos
 
 - Node.js 18 o superior
-- El backend de ChronoPay corriendo (local o desplegado)
+- npm
+- ChronoPay Backend ejecutándose localmente o en una URL accesible
 
-## Desarrollo local
+## Instalación
+
+Desde la carpeta `ChronoPay-Frontend`:
 
 ```bash
 npm install
-cp .env.example .env   # y ajusta VITE_API_URL si no usas localhost:8000
+```
+
+## Variables de entorno
+
+Crea un archivo `.env` en la raíz del proyecto:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+Para usar un backend desplegado, reemplaza el valor por su URL base. No agregues una barra `/` al final.
+
+El archivo `.env` contiene configuración local y no debe subirse al repositorio.
+
+## Desarrollo
+
+Inicia el servidor de Vite:
+
+```bash
 npm run dev
 ```
 
-Abre `http://localhost:5173`.
+Abre la URL que muestre Vite, normalmente:
 
-### CORS
-
-El backend Django debe incluir el origen del frontend en
-`CORS_ALLOWED_ORIGINS` (variable de entorno del backend). En desarrollo
-local ya incluye `http://localhost:3000` por defecto — si usas el puerto
-por defecto de Vite (`5173`), agrégalo:
-
+```text
+http://localhost:5173
 ```
-CORS_ALLOWED_ORIGINS=http://localhost:5173
+
+Si cambias `.env`, reinicia el servidor de desarrollo para que Vite cargue los nuevos valores.
+
+## Funcionalidades
+
+- Inicio de sesión con JWT.
+- Registro público de una empresa y su primer administrador en `/registro`.
+- Redirección automática al inicio después de registrarse correctamente.
+- Consulta y registro de asistencia.
+- Consulta de nómina.
+- Gestión de usuarios según permisos.
+- Gestión de sucursales para administradores generales.
+- Renovación automática del token de acceso cuando expira.
+
+## Roles
+
+La interfaz reconoce los siguientes roles:
+
+- `admin_general`: acceso global, usuarios y sucursales.
+- `gerente_sucursal`: gestión de usuarios y operación de su sucursal.
+- `empleado`: asistencia y consulta de su información.
+
+La autorización real siempre debe validarse en el backend. Las restricciones del frontend solo controlan la navegación y la experiencia de usuario.
+
+## Rutas principales
+
+| Ruta | Acceso | Descripción |
+| --- | --- | --- |
+| `/login` | Público | Inicio de sesión |
+| `/registro` | Público | Registro de empresa y administrador |
+| `/` | Autenticado | Página de inicio |
+| `/asistencia` | Autenticado | Marcajes y consulta de asistencia |
+| `/nomina` | Autenticado | Consulta de nómina |
+| `/usuarios` | Admin o gerente | Gestión de usuarios |
+| `/sucursales` | Admin general | Gestión de sucursales |
+
+## Estructura
+
+```text
+src/
+├── api/
+│   ├── client.ts       # Cliente Axios e interceptores JWT
+│   └── types.ts        # Tipos de la API
+├── auth/
+│   ├── AuthContext.tsx # Login, logout y usuario actual
+│   └── ProtectedRoute.tsx
+├── components/
+│   └── Layout.tsx
+├── pages/
+│   ├── LoginPage.tsx
+│   ├── RegistroPage.tsx
+│   ├── HomePage.tsx
+│   ├── AsistenciaPage.tsx
+│   ├── NominaPage.tsx
+│   ├── UsuariosPage.tsx
+│   └── SucursalesPage.tsx
+├── App.tsx
+├── index.css
+└── main.tsx
 ```
+
+## Backend requerido
+
+El frontend espera que el backend exponga, como mínimo:
+
+- `POST /api/auth/login/`
+- `POST /api/auth/refresh/`
+- `POST /api/empresas/registro/`
+- `GET /api/usuarios/me/`
+- Los endpoints de asistencia, nómina, usuarios y sucursales utilizados por cada página
+
+El registro público debe aceptar este JSON:
+
+```json
+{
+  "nombre_empresa": "Empresa de ejemplo",
+  "nombre_admin": "Ana",
+  "apellido_admin": "Pérez",
+  "email": "ana@example.com",
+  "username": "ana.perez",
+  "password": "UnaClaveSegura123!"
+}
+```
+
+Después del registro, el frontend inicia sesión automáticamente con el usuario y contraseña creados.
+
+## CORS
+
+El backend debe permitir el origen del frontend. En desarrollo local, agrega:
+
+```env
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```
+
+Si Vite inicia en otro puerto, usa ese origen exacto.
 
 ## Build de producción
 
@@ -48,45 +143,20 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173
 npm run build
 ```
 
-Genera la carpeta `dist/` lista para servir como sitio estático.
+Este comando ejecuta la comprobación de TypeScript y genera los archivos estáticos en `dist/`.
+
+Para revisar localmente el build generado:
+
+```bash
+npm run preview
+```
 
 ## Despliegue
 
-Este proyecto es un sitio estático (SPA), así que funciona en cualquier
-hosting de archivos estáticos: Vercel, Netlify, Cloudflare Pages, GitHub
-Pages, etc. Pasos generales:
+Configura en el proveedor de hosting:
 
-1. Conecta el repositorio al proveedor que elijas
-2. Comando de build: `npm run build`
-3. Carpeta de salida: `dist`
-4. Variable de entorno en el proveedor: `VITE_API_URL` apuntando a la URL
-   pública de tu backend desplegado (ej. `https://api.tudominio.com`)
-5. Configura el backend (`ALLOWED_HOSTS` y `CORS_ALLOWED_ORIGINS`) para
-   aceptar el dominio donde quede publicado el frontend
+- Comando de build: `npm run build`
+- Directorio de salida: `dist`
+- Variable `VITE_API_URL`: URL base pública del backend
 
-Como es una SPA con rutas del lado del cliente (React Router), configura
-el proveedor para redirigir cualquier ruta no encontrada a `index.html`
-(en Vercel/Netlify esto se hace automáticamente para proyectos Vite; si
-usas otro hosting, revisa su documentación de "SPA fallback" o "rewrite
-rules").
-
-## Roles soportados
-
-La navegación y las páginas se ajustan automáticamente según el rol del
-usuario autenticado (`admin_general`, `gerente_sucursal`, `empleado`),
-igual que los permisos ya definidos en el backend. El frontend oculta
-secciones que el rol no debería ver, pero la autorización real siempre
-la aplica el backend — el frontend no debe ser la única barrera de
-seguridad.
-
-## Pendientes conocidos
-
-- Los formularios de creación (usuarios, sucursales, nómina) son
-  funcionales pero mínimos — sin validación avanzada ni mensajes de
-  error detallados por campo.
-- La vista de nómina para el rol `empleado` filtra en el frontend para
-  mostrar solo su propio detalle, pero el backend actualmente devuelve
-  los detalles de todos los empleados de la sucursal en la respuesta.
-  Vale la pena restringir esto en el backend (`NominaSerializer`) para
-  que un empleado nunca reciba en la respuesta el salario de sus
-  compañeros, aunque el frontend no lo muestre.
+Como es una SPA, el hosting debe redirigir las rutas desconocidas a `index.html` para que funcionen `/login` y `/registro` al recargar la página.
