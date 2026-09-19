@@ -1,33 +1,33 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import type { Rol } from "../api/types";
+import type { Role } from "../api/types";
 
 interface NavItem {
   to: string;
   label: string;
-  rolesPermitidos: Rol[];
+  allowedRoles: Role[];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: "/", label: "Inicio", rolesPermitidos: ["admin_general", "gerente_sucursal", "empleado"] },
-  { to: "/asistencia", label: "Asistencia", rolesPermitidos: ["admin_general", "gerente_sucursal", "empleado"] },
-  { to: "/nomina", label: "Nómina", rolesPermitidos: ["admin_general", "gerente_sucursal", "empleado"] },
-  { to: "/usuarios", label: "Usuarios", rolesPermitidos: ["admin_general", "gerente_sucursal"] },
-  { to: "/sucursales", label: "Sucursales", rolesPermitidos: ["admin_general"] },
+  { to: "/", label: "Home", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
+  { to: "/asistencia", label: "Attendance", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
+  { to: "/nomina", label: "Payroll", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
+  { to: "/usuarios", label: "Users", allowedRoles: ["admin_general", "gerente_sucursal"] },
+  { to: "/sucursales", label: "Branches", allowedRoles: ["admin_general"] },
 ];
 
-const ETIQUETA_ROL: Record<Rol, string> = {
-  admin_general: "Admin general",
-  gerente_sucursal: "Gerente de sucursal",
-  empleado: "Empleado",
+const ROLE_LABEL: Record<Role, string> = {
+  admin_general: "General admin",
+  gerente_sucursal: "Branch manager",
+  empleado: "Employee",
 };
 
 export function Layout() {
-  const { usuario, logout } = useAuth();
+  const { user, logout } = useAuth();
 
-  if (!usuario) return null;
+  if (!user) return null;
 
-  const items = NAV_ITEMS.filter((item) => item.rolesPermitidos.includes(usuario.rol));
+  const items = NAV_ITEMS.filter((item) => item.allowedRoles.includes(user.rol));
 
   return (
     <div className="flex h-screen">
@@ -57,14 +57,14 @@ export function Layout() {
 
         <div className="border-t border-line px-4 py-4">
           <p className="truncate text-sm font-medium">
-            {usuario.first_name || usuario.username} {usuario.last_name}
+            {user.first_name || user.username} {user.last_name}
           </p>
-          <p className="text-xs text-ink/50">{ETIQUETA_ROL[usuario.rol]}</p>
+          <p className="text-xs text-ink/50">{ROLE_LABEL[user.rol]}</p>
           <button
             onClick={logout}
             className="mt-3 w-full rounded-md border border-line px-3 py-1.5 text-sm text-ink/70 hover:bg-surface"
           >
-            Cerrar sesión
+            Log out
           </button>
         </div>
       </aside>

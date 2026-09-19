@@ -1,6 +1,6 @@
-export type Rol = "admin_general" | "gerente_sucursal" | "empleado";
+export type Role = "admin_general" | "gerente_sucursal" | "empleado";
 
-export interface Usuario {
+export interface User {
   id: number;
   username: string;
   first_name: string;
@@ -8,14 +8,14 @@ export interface Usuario {
   email: string;
   cedula: string | null;
   telefono: string;
-  rol: Rol;
+  rol: Role;
   sucursal: number | null;
   salario_actual: string | null;
   activo: boolean;
   date_joined: string;
 }
 
-export interface Sucursal {
+export interface Branch {
   id: number;
   nombre: string;
   codigo: string;
@@ -25,7 +25,7 @@ export interface Sucursal {
   activo: boolean;
 }
 
-export interface Marcaje {
+export interface AttendanceRecord {
   id: number;
   empleado: number;
   empleado_nombre?: string;
@@ -40,7 +40,7 @@ export interface Marcaje {
   motivo_correccion: string;
 }
 
-export interface DetalleNomina {
+export interface PayrollDetail {
   id: number;
   nomina: number;
   usuario: number;
@@ -59,7 +59,7 @@ export interface DetalleNomina {
   total_neto: string;
 }
 
-export interface Nomina {
+export interface Payroll {
   id: number;
   sucursal: number;
   periodo_inicio: string;
@@ -67,7 +67,7 @@ export interface Nomina {
   estado: string;
   total: string;
   creado_en: string;
-  detalles: DetalleNomina[];
+  detalles: PayrollDetail[];
 }
 
 export interface LoginResponse {

@@ -1,12 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, getListData } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
-import type { Rol, Usuario } from "../api/types";
+import type { Role, User } from "../api/types";
 
-const ETIQUETA_ROL: Record<Rol, string> = {
-  admin_general: "Admin general",
-  gerente_sucursal: "Gerente de sucursal",
-  empleado: "Empleado",
+const ROLE_LABEL: Record<Role, string> = {
+  admin_general: "General admin",
+  gerente_sucursal: "Branch manager",
+  empleado: "Employee",
 };
 
 const ESTADO_INICIAL = {
@@ -14,14 +14,14 @@ const ESTADO_INICIAL = {
   password: "",
   first_name: "",
   last_name: "",
-  rol: "empleado" as Rol,
+  rol: "empleado" as Role,
   sucursal: "",
   salario_actual: "",
 };
 
-export function UsuariosPage() {
-  const { usuario } = useAuth();
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+export function UsersPage() {
+  const { user } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
   const [cargando, setCargando] = useState(true);
   const [form, setForm] = useState(ESTADO_INICIAL);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -30,8 +30,8 @@ export function UsuariosPage() {
   async function cargar() {
     setCargando(true);
     try {
-      const { data } = await api.get<Usuario[] | { results: Usuario[] }>("/api/usuarios/");
-      setUsuarios(getListData(data));
+      const { data } = await api.get<User[] | { results: User[] }>("/api/usuarios/");
+      setUsers(getListData(data));
     } finally {
       setCargando(false);
     }
@@ -57,7 +57,7 @@ export function UsuariosPage() {
       setMensaje(
         typeof err?.response?.data === "object"
           ? JSON.stringify(err.response.data)
-          : "No se pudo crear el usuario."
+          : "The user could not be created."
       );
     } finally {
       setGuardando(false);
@@ -66,21 +66,21 @@ export function UsuariosPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Usuarios</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
 
       <form
         onSubmit={crearUsuario}
         className="mt-6 grid grid-cols-2 gap-4 rounded-lg border border-line bg-white p-6 sm:grid-cols-3"
       >
         <input
-          placeholder="Usuario"
+          placeholder="Username"
           value={form.username}
           onChange={(e) => setForm({ ...form, username: e.target.value })}
           required
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
-          placeholder="Contraseña"
+          placeholder="Password"
           type="password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -88,34 +88,34 @@ export function UsuariosPage() {
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
-          placeholder="Nombres"
+          placeholder="First name"
           value={form.first_name}
           onChange={(e) => setForm({ ...form, first_name: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
-          placeholder="Apellidos"
+          placeholder="Last name"
           value={form.last_name}
           onChange={(e) => setForm({ ...form, last_name: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <select
           value={form.rol}
-          onChange={(e) => setForm({ ...form, rol: e.target.value as Rol })}
+          onChange={(e) => setForm({ ...form, rol: e.target.value as Role })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         >
-          {usuario?.rol === "admin_general" && <option value="admin_general">Admin general</option>}
-          <option value="gerente_sucursal">Gerente de sucursal</option>
-          <option value="empleado">Empleado</option>
+          {user?.rol === "admin_general" && <option value="admin_general">General admin</option>}
+          <option value="gerente_sucursal">Branch manager</option>
+          <option value="empleado">Employee</option>
         </select>
         <input
-          placeholder="ID sucursal"
+          placeholder="Branch ID"
           value={form.sucursal}
           onChange={(e) => setForm({ ...form, sucursal: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
-          placeholder="Salario mensual"
+          placeholder="Monthly salary"
           value={form.salario_actual}
           onChange={(e) => setForm({ ...form, salario_actual: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
@@ -125,7 +125,7 @@ export function UsuariosPage() {
           disabled={guardando}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50"
         >
-          {guardando ? "Creando…" : "Crear usuario"}
+          {guardando ? "Creating…" : "Create user"}
         </button>
       </form>
 
@@ -135,8 +135,8 @@ export function UsuariosPage() {
         <table className="w-full text-left text-sm">
           <thead className="border-b border-line bg-surface text-ink/60">
             <tr>
-              <th className="px-4 py-3 font-medium">Nombre</th>
-              <th className="px-4 py-3 font-medium">Usuario</th>
+              <th className="px-4 py-3 font-medium">Name</th>
+              <th className="px-4 py-3 font-medium">Username</th>
               <th className="px-4 py-3 font-medium">Rol</th>
               <th className="px-4 py-3 font-medium">Sucursal</th>
             </tr>
@@ -145,17 +145,17 @@ export function UsuariosPage() {
             {cargando ? (
               <tr>
                 <td className="px-4 py-4 text-ink/50" colSpan={4}>
-                  Cargando…
+                  Loading…
                 </td>
               </tr>
             ) : (
-              usuarios.map((u) => (
+              users.map((u) => (
                 <tr key={u.id} className="border-b border-line last:border-0">
                   <td className="px-4 py-3">
                     {u.first_name} {u.last_name}
                   </td>
                   <td className="px-4 py-3">{u.username}</td>
-                  <td className="px-4 py-3">{ETIQUETA_ROL[u.rol]}</td>
+                  <td className="px-4 py-3">{ROLE_LABEL[u.rol]}</td>
                   <td className="px-4 py-3">{u.sucursal ?? "—"}</td>
                 </tr>
               ))

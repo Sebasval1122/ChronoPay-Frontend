@@ -17,13 +17,13 @@ type CampoRegistro = (typeof CAMPOS_REGISTRO)[number];
 type ErroresCampo = Partial<Record<CampoRegistro, string>>;
 
 const MENSAJES_VALIDACION: Record<string, string> = {
-  "This password is too common.": "Esta contraseña es demasiado común.",
+  "This password is too common.": "This password is too common.",
   "This password is too similar to the username.":
-    "Esta contraseña es demasiado similar al usuario.",
-  "This password is entirely numeric.": "La contraseña no puede contener solo números.",
-  "Enter a valid email address.": "Ingresa una dirección de correo válida.",
-  "This field may not be blank.": "Este campo no puede estar vacío.",
-  "This field is required.": "Este campo es obligatorio.",
+    "This password is too similar to the username.",
+  "This password is entirely numeric.": "The password cannot contain only numbers.",
+  "Enter a valid email address.": "Enter a valid email address.",
+  "This field may not be blank.": "This field cannot be blank.",
+  "This field is required.": "This field is required.",
 };
 
 function traducirMensaje(mensaje: string) {
@@ -31,7 +31,7 @@ function traducirMensaje(mensaje: string) {
     /^This password is too short\. It must contain at least (\d+) characters\.$/,
   );
   if (mensajeCorto) {
-    return `La contraseña es demasiado corta. Debe contener al menos ${mensajeCorto[1]} caracteres.`;
+    return `The password is too short. It must contain at least ${mensajeCorto[1]} characters.`;
   }
 
   return MENSAJES_VALIDACION[mensaje] ?? mensaje;
@@ -45,13 +45,13 @@ function obtenerMensajes(valor: unknown) {
 }
 
 function analizarError(error: unknown): { erroresCampo: ErroresCampo; general: string | null } {
-  const fallback = "No se pudo completar el registro. Revisa los datos e inténtalo de nuevo.";
-  if (!isAxiosError(error)) return { erroresCampo: {}, general: "No se pudo conectar con el servidor." };
+  const fallback = "Registration could not be completed. Check the information and try again.";
+  if (!isAxiosError(error)) return { erroresCampo: {}, general: "Could not connect to the server." };
 
   if (error.response?.status === 429) {
     return {
       erroresCampo: {},
-      general: "Has intentado registrarte demasiadas veces. Espera unos minutos e inténtalo de nuevo.",
+      general: "You have tried to register too many times. Wait a few minutes and try again.",
     };
   }
 
@@ -85,7 +85,7 @@ function analizarError(error: unknown): { erroresCampo: ErroresCampo; general: s
   };
 }
 
-export function RegistroPage() {
+export function RegisterPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [nombreEmpresa, setNombreEmpresa] = useState("");
@@ -105,7 +105,7 @@ export function RegistroPage() {
     setErroresCampo({});
 
     if (password !== confirmarPassword) {
-      setErroresCampo({ password: "Las contraseñas no coinciden." });
+      setErroresCampo({ password: "The passwords do not match." });
       return;
     }
 
@@ -134,22 +134,22 @@ export function RegistroPage() {
     <div className="flex min-h-screen items-center justify-center bg-surface px-4 py-8">
       <div className="w-full max-w-sm">
         <h1 className="mb-1 text-2xl font-semibold tracking-tight text-primary-dark">
-          Crear cuenta
+          Create account
         </h1>
         <p className="mb-8 text-sm text-ink/60">
-          Registra tu empresa para comenzar en ChronoPay.
+          Register your company to get started with ChronoPay.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-line bg-white p-6">
           <div>
             <label htmlFor="nombre-empresa" className="mb-1 block text-sm font-medium">
-              Nombre de la empresa
+              Company name
             </label>
             <input
               id="nombre-empresa"
               value={nombreEmpresa}
               onChange={(event) => setNombreEmpresa(event.target.value)}
-              placeholder="Ej: Cadena Los Andes"
+              placeholder="E.g. Andes Retail"
               className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-primary focus:outline-none"
               required
             />
@@ -160,13 +160,13 @@ export function RegistroPage() {
 
           <div>
             <label htmlFor="nombre-admin" className="mb-1 block text-sm font-medium">
-              Nombres del administrador
+              Administrator first name
             </label>
             <input
               id="nombre-admin"
               value={nombreAdmin}
               onChange={(event) => setNombreAdmin(event.target.value)}
-              placeholder="Ej: Ana"
+              placeholder="E.g. Ana"
               className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-primary focus:outline-none"
               autoComplete="given-name"
               required
@@ -178,13 +178,13 @@ export function RegistroPage() {
 
           <div>
             <label htmlFor="apellido-admin" className="mb-1 block text-sm font-medium">
-              Apellidos del administrador
+              Administrator last name
             </label>
             <input
               id="apellido-admin"
               value={apellidoAdmin}
               onChange={(event) => setApellidoAdmin(event.target.value)}
-              placeholder="Ej: Gómez"
+              placeholder="E.g. Gomez"
               className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-primary focus:outline-none"
               autoComplete="family-name"
               required
@@ -196,14 +196,14 @@ export function RegistroPage() {
 
           <div>
             <label htmlFor="registro-email" className="mb-1 block text-sm font-medium">
-              Correo electrónico
+              Email
             </label>
             <input
               id="registro-email"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="Ej: ana@losandes.com"
+              placeholder="E.g. ana@example.com"
               className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-primary focus:outline-none"
               autoComplete="email"
               required
@@ -213,13 +213,13 @@ export function RegistroPage() {
 
           <div>
             <label htmlFor="registro-username" className="mb-1 block text-sm font-medium">
-              Usuario
+              Username
             </label>
             <input
               id="registro-username"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
-              placeholder="Ej: anagomez"
+              placeholder="E.g. anagomez"
               className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-primary focus:outline-none"
               autoComplete="username"
               required
@@ -231,14 +231,14 @@ export function RegistroPage() {
 
           <div>
             <label htmlFor="registro-password" className="mb-1 block text-sm font-medium">
-              Contraseña
+              Password
             </label>
             <input
               id="registro-password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Mínimo 8 caracteres, sin datos personales ni contraseñas comunes"
+              placeholder="At least 8 characters; avoid personal details and common passwords"
               className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-primary focus:outline-none"
               autoComplete="new-password"
               required
@@ -250,14 +250,14 @@ export function RegistroPage() {
 
           <div>
             <label htmlFor="confirmar-password" className="mb-1 block text-sm font-medium">
-              Confirmar contraseña
+              Confirm password
             </label>
             <input
               id="confirmar-password"
               type="password"
               value={confirmarPassword}
               onChange={(event) => setConfirmarPassword(event.target.value)}
-              placeholder="Repite la contraseña anterior"
+              placeholder="Repeat your password"
               className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-primary focus:outline-none"
               autoComplete="new-password"
               required
@@ -273,11 +273,11 @@ export function RegistroPage() {
             disabled={enviando}
             className="w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-60"
           >
-            {enviando ? "Registrando…" : "Registrar"}
+            {enviando ? "Registering…" : "Register"}
           </button>
 
           <Link to="/login" className="block text-center text-sm text-primary hover:underline">
-            Ya tengo una cuenta
+            I already have an account
           </Link>
         </form>
       </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, getListData } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
-import type { Nomina } from "../api/types";
+import type { Payroll } from "../api/types";
 
 function formatearMoneda(valor: string) {
   return Number(valor).toLocaleString("es-CO", {
@@ -11,24 +11,24 @@ function formatearMoneda(valor: string) {
   });
 }
 
-export function NominaPage() {
-  const { usuario } = useAuth();
-  const [nominas, setNominas] = useState<Nomina[]>([]);
+export function PayrollPage() {
+  const { user } = useAuth();
+  const [payrolls, setPayrolls] = useState<Payroll[]>([]);
   const [cargando, setCargando] = useState(true);
   const [form, setForm] = useState({ sucursal: "", periodo_inicio: "", periodo_fin: "" });
   const [guardando, setGuardando] = useState(false);
   const [generando, setGenerando] = useState<number | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
 
-  const puedeGestionar = usuario?.rol === "admin_general" || usuario?.rol === "gerente_sucursal";
+  const canManage = user?.rol === "admin_general" || user?.rol === "gerente_sucursal";
 
   async function cargarNominas() {
     setCargando(true);
     try {
-      const { data } = await api.get<Nomina[] | { results: Nomina[] }>("/api/nomina/");
-      setNominas(getListData(data));
+      const { data } = await api.get<Payroll[] | { results: Payroll[] }>("/api/nomina/");
+      setPayrolls(getListData(data));
     } catch {
-      setMensaje("No se pudieron cargar las nóminas.");
+      setMensaje("Payroll could not be loaded.");
     } finally {
       setCargando(false);
     }
@@ -42,9 +42,9 @@ export function NominaPage() {
     event.preventDefault();
     setMensaje(null);
 
-    const sucursal = usuario?.rol === "gerente_sucursal" ? usuario.sucursal : Number(form.sucursal);
+    const sucursal = user?.rol === "gerente_sucursal" ? user.sucursal : Number(form.sucursal);
     if (!sucursal) {
-      setMensaje("Debes indicar una sucursal válida.");
+      setMensaje("You must provide a valid branch.");
       return;
     }
 
@@ -58,7 +58,7 @@ export function NominaPage() {
       setForm({ sucursal: "", periodo_inicio: "", periodo_fin: "" });
       await cargarNominas();
     } catch {
-      setMensaje("No se pudo crear el período de nómina.");
+      setMensaje("The payroll period could not be created.");
     } finally {
       setGuardando(false);
     }
@@ -71,7 +71,7 @@ export function NominaPage() {
       await api.post(`/api/nomina/${nominaId}/generar/`);
       await cargarNominas();
     } catch {
-      setMensaje("No se pudo generar la nómina.");
+      setMensaje("Payroll could not be generated.");
     } finally {
       setGenerando(null);
     }
@@ -87,21 +87,21 @@ export function NominaPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Nómina</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Payroll</h1>
       <p className="mt-2 text-sm text-ink/60">
-        {usuario?.rol === "empleado" ? "Consulta tus periodos de nómina." : "Periodos de nómina registrados."}
+        {user?.rol === "empleado" ? "Review your payroll periods." : "Recorded payroll periods."}
       </p>
 
-      {puedeGestionar && (
+      {canManage && (
         <form
           onSubmit={crearNomina}
           className="mt-6 grid grid-cols-1 gap-4 rounded-lg border border-line bg-white p-6 sm:grid-cols-4"
         >
-          {usuario?.rol === "admin_general" ? (
+          {user?.rol === "admin_general" ? (
             <input
               type="number"
               min="1"
-              placeholder="ID sucursal"
+              placeholder="Branch ID"
               value={form.sucursal}
               onChange={(event) => setForm({ ...form, sucursal: event.target.value })}
               required
@@ -109,7 +109,7 @@ export function NominaPage() {
             />
           ) : (
             <input
-              value={`Sucursal ${usuario?.sucursal ?? "no asignada"}`}
+              value={`Branch ${user?.sucursal ?? "not assigned"}`}
               readOnly
               className="rounded-md border border-line bg-surface px-3 py-2 text-sm"
             />
@@ -133,7 +133,7 @@ export function NominaPage() {
             disabled={guardando}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50"
           >
-            {guardando ? "Creando…" : "Crear período"}
+            {guardando ? "Creating…" : "Create period"}
           </button>
         </form>
       )}
@@ -144,29 +144,29 @@ export function NominaPage() {
         <div className="mt-6 rounded-lg border border-line bg-white px-4 py-4 text-sm text-ink/50">
           Cargando...
         </div>
-      ) : nominas.length === 0 ? (
+      ) : payrolls.length === 0 ? (
         <div className="mt-6 rounded-lg border border-line bg-white px-4 py-4 text-sm text-ink/50">
-          No hay nóminas disponibles.
+          No payroll available.
         </div>
       ) : (
         <div className="mt-6 space-y-6">
-          {nominas.map((nomina) => (
-            <section key={nomina.id} className="overflow-hidden rounded-lg border border-line bg-white">
+          {payrolls.map((payroll) => (
+            <section key={payroll.id} className="overflow-hidden rounded-lg border border-line bg-white">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-surface px-4 py-3">
                 <div>
-                  <h2 className="font-medium">{nomina.periodo_inicio} - {nomina.periodo_fin}</h2>
+                  <h2 className="font-medium">{payroll.periodo_inicio} - {payroll.periodo_fin}</h2>
                   <p className="text-sm text-ink/60">
-                    Estado: {nomina.estado} · Total: {formatearMoneda(nomina.total)}
+                    Status: {payroll.estado} · Total: {formatearMoneda(payroll.total)}
                   </p>
                 </div>
-                {puedeGestionar && (
+                {canManage && (
                   <button
                     type="button"
-                    onClick={() => generarNomina(nomina.id)}
-                    disabled={generando === nomina.id}
+                    onClick={() => generarNomina(payroll.id)}
+                    disabled={generando === payroll.id}
                     className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50"
                   >
-                    {generando === nomina.id ? "Generando…" : "Generar / recalcular"}
+                    {generando === payroll.id ? "Generating…" : "Generate / recalculate"}
                   </button>
                 )}
               </div>
@@ -175,18 +175,18 @@ export function NominaPage() {
                 <table className="w-full text-left text-sm">
                   <thead className="border-b border-line text-ink/60">
                     <tr>
-                      {puedeGestionar && <th className="px-4 py-3 font-medium">Empleado</th>}
-                      <th className="px-4 py-3 font-medium">Horas extra</th>
-                      <th className="px-4 py-3 font-medium">Recargos</th>
-                      <th className="px-4 py-3 font-medium">Retención</th>
-                      <th className="px-4 py-3 font-medium">Total neto</th>
-                      <th className="px-4 py-3 font-medium">Comprobante</th>
+                      {canManage && <th className="px-4 py-3 font-medium">Employee</th>}
+                      <th className="px-4 py-3 font-medium">Overtime</th>
+                      <th className="px-4 py-3 font-medium">Surcharges</th>
+                      <th className="px-4 py-3 font-medium">Withholding</th>
+                      <th className="px-4 py-3 font-medium">Net total</th>
+                      <th className="px-4 py-3 font-medium">Payslip</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {nomina.detalles.map((detalle) => (
+                    {payroll.detalles.map((detalle) => (
                       <tr key={detalle.id} className="border-b border-line last:border-0">
-                        {puedeGestionar && <td className="px-4 py-3">{detalle.usuario_nombre}</td>}
+                        {canManage && <td className="px-4 py-3">{detalle.usuario_nombre}</td>}
                         <td className="px-4 py-3">{detalle.horas_extra}</td>
                         <td className="px-4 py-3">{formatearMoneda(detalle.recargos)}</td>
                         <td className="px-4 py-3">{formatearMoneda(detalle.retencion_fuente)}</td>
@@ -197,7 +197,7 @@ export function NominaPage() {
                             onClick={() => abrirComprobante(detalle.id)}
                             className="text-primary hover:underline"
                           >
-                            Comprobante PDF
+                            PDF payslip
                           </button>
                         </td>
                       </tr>

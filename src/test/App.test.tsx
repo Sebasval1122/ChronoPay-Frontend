@@ -6,7 +6,7 @@ import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { ProtectedRoute } from "../auth/ProtectedRoute";
 import { LoginPage } from "../pages/LoginPage";
-import { RegistroPage } from "../pages/RegistroPage";
+import { RegisterPage } from "../pages/RegisterPage";
 
 vi.mock("../api/client", () => ({
   api: { post: vi.fn() },
@@ -23,8 +23,8 @@ function renderRegistro() {
   return render(
     <MemoryRouter initialEntries={["/registro"]}>
       <Routes>
-        <Route path="/registro" element={<RegistroPage />} />
-        <Route path="/" element={<p>Inicio autenticado</p>} />
+        <Route path="/registro" element={<RegisterPage />} />
+        <Route path="/" element={<p>Authenticated home</p>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -38,36 +38,36 @@ function renderLogin() {
   );
 }
 
-describe("RegistroPage", () => {
+describe("RegisterPage", () => {
   const loginMock = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     useAuthMock.mockReturnValue({
       login: loginMock,
-      usuario: null,
-      cargando: false,
+      user: null,
+      loading: false,
       error: null,
       logout: vi.fn(),
     });
   });
 
-  it("envía el registro, inicia sesión y redirige al inicio", async () => {
+  it("submits registration, signs in, and redirects home", async () => {
     const user = userEvent.setup();
     postMock.mockResolvedValue({ data: { id: 1 } } as never);
     loginMock.mockResolvedValue(undefined);
     renderRegistro();
 
-    await user.type(screen.getByLabelText("Nombre de la empresa"), "ChronoPay SAS");
-    await user.type(screen.getByLabelText("Nombres del administrador"), "Ana");
-    await user.type(screen.getByLabelText("Apellidos del administrador"), "Pérez");
-    await user.type(screen.getByLabelText("Correo electrónico"), "ana@example.com");
-    await user.type(screen.getByLabelText("Usuario"), "ana.perez");
-    await user.type(screen.getByLabelText("Contraseña"), "ClaveSegura123!");
-    await user.type(screen.getByLabelText("Confirmar contraseña"), "ClaveSegura123!");
-    await user.click(screen.getByRole("button", { name: "Registrar" }));
+    await user.type(screen.getByLabelText("Company name"), "ChronoPay SAS");
+    await user.type(screen.getByLabelText("Administrator first name"), "Ana");
+    await user.type(screen.getByLabelText("Administrator last name"), "Pérez");
+    await user.type(screen.getByLabelText("Email"), "ana@example.com");
+    await user.type(screen.getByLabelText("Username"), "ana.perez");
+    await user.type(screen.getByLabelText("Password"), "ClaveSegura123!");
+    await user.type(screen.getByLabelText("Confirm password"), "ClaveSegura123!");
+    await user.click(screen.getByRole("button", { name: "Register" }));
 
-    await waitFor(() => expect(screen.getByText("Inicio autenticado")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Authenticated home")).toBeInTheDocument());
     expect(postMock).toHaveBeenCalledWith("/api/empresas/registro/", {
       nombre_empresa: "ChronoPay SAS",
       nombre_admin: "Ana",
@@ -79,39 +79,39 @@ describe("RegistroPage", () => {
     expect(loginMock).toHaveBeenCalledWith("ana.perez", "ClaveSegura123!");
   });
 
-  it("rechaza contraseñas diferentes sin llamar al backend", async () => {
+  it("rejects mismatched passwords without calling the backend", async () => {
     const user = userEvent.setup();
     renderRegistro();
 
-    await user.type(screen.getByLabelText("Nombre de la empresa"), "ChronoPay SAS");
-    await user.type(screen.getByLabelText("Nombres del administrador"), "Ana");
-    await user.type(screen.getByLabelText("Apellidos del administrador"), "Pérez");
-    await user.type(screen.getByLabelText("Correo electrónico"), "ana@example.com");
-    await user.type(screen.getByLabelText("Usuario"), "ana.perez");
-    await user.type(screen.getByLabelText("Contraseña"), "ClaveSegura123!");
-    await user.type(screen.getByLabelText("Confirmar contraseña"), "OtraClave123!");
-    await user.click(screen.getByRole("button", { name: "Registrar" }));
+    await user.type(screen.getByLabelText("Company name"), "ChronoPay SAS");
+    await user.type(screen.getByLabelText("Administrator first name"), "Ana");
+    await user.type(screen.getByLabelText("Administrator last name"), "Pérez");
+    await user.type(screen.getByLabelText("Email"), "ana@example.com");
+    await user.type(screen.getByLabelText("Username"), "ana.perez");
+    await user.type(screen.getByLabelText("Password"), "ClaveSegura123!");
+    await user.type(screen.getByLabelText("Confirm password"), "OtraClave123!");
+    await user.click(screen.getByRole("button", { name: "Register" }));
 
-    expect(await screen.findByText("Las contraseñas no coinciden.")).toBeInTheDocument();
+    expect(await screen.findByText("The passwords do not match.")).toBeInTheDocument();
     expect(postMock).not.toHaveBeenCalled();
   });
 
-  it("muestra un error de conexión y conserva los datos escritos", async () => {
+  it("shows a connection error and preserves entered data", async () => {
     const user = userEvent.setup();
     postMock.mockRejectedValue(new Error("network error"));
     renderRegistro();
 
-    const empresa = screen.getByLabelText("Nombre de la empresa");
+    const empresa = screen.getByLabelText("Company name");
     await user.type(empresa, "Empresa persistente");
-    await user.type(screen.getByLabelText("Nombres del administrador"), "Ana");
-    await user.type(screen.getByLabelText("Apellidos del administrador"), "Pérez");
-    await user.type(screen.getByLabelText("Correo electrónico"), "ana@example.com");
-    await user.type(screen.getByLabelText("Usuario"), "ana.perez");
-    await user.type(screen.getByLabelText("Contraseña"), "ClaveSegura123!");
-    await user.type(screen.getByLabelText("Confirmar contraseña"), "ClaveSegura123!");
-    await user.click(screen.getByRole("button", { name: "Registrar" }));
+    await user.type(screen.getByLabelText("Administrator first name"), "Ana");
+    await user.type(screen.getByLabelText("Administrator last name"), "Pérez");
+    await user.type(screen.getByLabelText("Email"), "ana@example.com");
+    await user.type(screen.getByLabelText("Username"), "ana.perez");
+    await user.type(screen.getByLabelText("Password"), "ClaveSegura123!");
+    await user.type(screen.getByLabelText("Confirm password"), "ClaveSegura123!");
+    await user.click(screen.getByRole("button", { name: "Register" }));
 
-    expect(await screen.findByText("No se pudo conectar con el servidor.")).toBeInTheDocument();
+    expect(await screen.findByText("Could not connect to the server.")).toBeInTheDocument();
     expect(empresa).toHaveValue("Empresa persistente");
   });
 });
@@ -121,17 +121,17 @@ describe("LoginPage", () => {
     vi.clearAllMocks();
     useAuthMock.mockReturnValue({
       login: vi.fn(),
-      usuario: null,
-      cargando: false,
+      user: null,
+      loading: false,
       error: null,
       logout: vi.fn(),
     });
   });
 
-  it("muestra el enlace hacia el registro público", () => {
+  it("shows the link to public registration", () => {
     renderLogin();
 
-    expect(screen.getByRole("link", { name: "¿No tienes cuenta? Regístrate" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Don't have an account? Register" })).toHaveAttribute(
       "href",
       "/registro",
     );
@@ -142,8 +142,8 @@ describe("ProtectedRoute", () => {
   it("redirige al login cuando no hay usuario autenticado", () => {
     useAuthMock.mockReturnValue({
       login: vi.fn(),
-      usuario: null,
-      cargando: false,
+      user: null,
+      loading: false,
       error: null,
       logout: vi.fn(),
     });
@@ -170,7 +170,7 @@ describe("ProtectedRoute", () => {
   it("redirige al inicio si el rol no está permitido", () => {
     useAuthMock.mockReturnValue({
       login: vi.fn(),
-      usuario: {
+      user: {
         id: 1,
         username: "empleado",
         first_name: "",
@@ -184,7 +184,7 @@ describe("ProtectedRoute", () => {
         activo: true,
         date_joined: "2026-01-01",
       },
-      cargando: false,
+      loading: false,
       error: null,
       logout: vi.fn(),
     });
@@ -195,7 +195,7 @@ describe("ProtectedRoute", () => {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute rolesPermitidos={["admin_general"]}>
+              <ProtectedRoute allowedRoles={["admin_general"]}>
                 <p>Administración</p>
               </ProtectedRoute>
             }

@@ -1,178 +1,172 @@
 # ChronoPay Frontend
 
-Aplicación web de ChronoPay para gestionar usuarios, sucursales, asistencia y nómina. Está construida con React, TypeScript, Vite, TailwindCSS, React Router y Axios, y consume la API REST del backend Django.
+ChronoPay web application for managing users, branches, attendance, and payroll. It is built with React, TypeScript, Vite, Tailwind CSS, React Router, and Axios, and consumes the Django REST API.
 
-## Requisitos
+## Requirements
 
-- Node.js 18 o superior
+- Node.js 18 or later
 - npm
-- ChronoPay Backend ejecutándose localmente o en una URL accesible
+- ChronoPay Backend running locally or at an accessible URL
 
-## Instalación
+## Installation
 
-Desde la carpeta `ChronoPay-Frontend`:
+From the `ChronoPay-Frontend` directory:
 
 ```bash
 npm install
 ```
 
-## Variables de entorno
+## Environment variables
 
-Crea un archivo `.env` en la raíz del proyecto:
+Create a `.env` file in the project root:
 
 ```env
 VITE_API_URL=http://127.0.0.1:8000
 ```
 
-Para usar un backend desplegado, reemplaza el valor por su URL base. No agregues una barra `/` al final.
+For a deployed backend, replace the value with its base URL. Do not add a trailing `/`.
 
-El archivo `.env` contiene configuración local y no debe subirse al repositorio.
+The `.env` file contains local configuration and must not be committed.
 
-## Desarrollo
+## Development
 
-Inicia el servidor de Vite:
+Start the Vite development server:
 
 ```bash
 npm run dev
 ```
 
-Abre la URL que muestre Vite, normalmente:
+Open the URL displayed by Vite, usually `http://localhost:5173`.
 
-```text
-http://localhost:5173
-```
+Restart the development server after changing `.env` so Vite reloads the values.
 
-Si cambias `.env`, reinicia el servidor de desarrollo para que Vite cargue los nuevos valores.
+## Features
 
-## Funcionalidades
+- JWT sign-in.
+- Public registration of a company and its first administrator at `/registro`.
+- Automatic redirect to the home page after successful registration.
+- Attendance lookup and check-in/check-out actions.
+- Payroll lookup, period creation, generation/recalculation, overtime and surcharge details by employee, and PDF payslip downloads.
+- Permission-based user management.
+- Branch management for general administrators.
+- Automatic access-token renewal when it expires.
 
-- Inicio de sesión con JWT.
-- Registro público de una empresa y su primer administrador en `/registro`.
-- Redirección automática al inicio después de registrarse correctamente.
-- Consulta y registro de asistencia (marcar entrada/salida).
-- Consulta de nómina: crear período, generar/recalcular, ver desglose de horas extra y recargos por empleado, y descargar el comprobante en PDF.
-- Gestión de usuarios según permisos.
-- Gestión de sucursales para administradores generales.
-- Renovación automática del token de acceso cuando expira.
+The end-to-end integration is supported: company registration -> sign-in -> attendance tracking -> payroll generation, together with ChronoPay Backend.
 
-**Integración con el backend confirmada de punta a punta**: registro de empresa → login → marcar asistencia → generar nómina, funcionando en conjunto con ChronoPay-Backend.
+## Known limitations
 
-## Pendientes conocidos
+The backend supports these API features, but this frontend does not have screens for them yet:
 
-El backend ya soporta estas funcionalidades vía API, pero todavía no tienen pantalla en este frontend:
+- Vacation and leave requests
+- Employee salary-change history
+- CSV report downloads
 
-- Solicitudes de vacaciones/permisos (crear, aprobar, rechazar)
-- Historial de cambios salariales por empleado
-- Descarga de reportes en CSV
+These features do not exist yet in either the backend or this frontend:
 
-Tampoco existen todavía (ni en el backend ni aquí):
-
-- Dashboard consolidado multi-sucursal
-- Dashboard de costos de nómina proyectados vs. reales
-- Sistema de notificaciones
+- Consolidated multi-branch dashboard
+- Projected versus actual payroll-cost dashboard
+- Notification system
 
 ## Roles
 
-La interfaz reconoce los siguientes roles:
+- `admin_general`: global access, users, and branches.
+- `gerente_sucursal`: user management and branch operations.
+- `empleado`: attendance and personal information lookup.
 
-- `admin_general`: acceso global, usuarios y sucursales.
-- `gerente_sucursal`: gestión de usuarios y operación de su sucursal.
-- `empleado`: asistencia y consulta de su información.
+Authorization must always be validated by the backend. Frontend restrictions only control navigation and user experience.
 
-La autorización real siempre debe validarse en el backend. Las restricciones del frontend solo controlan la navegación y la experiencia de usuario.
+## Main routes
 
-## Rutas principales
-
-| Ruta | Acceso | Descripción |
+| Route | Access | Description |
 | --- | --- | --- |
-| `/login` | Público | Inicio de sesión |
-| `/registro` | Público | Registro de empresa y administrador |
-| `/` | Autenticado | Página de inicio |
-| `/asistencia` | Autenticado | Marcajes y consulta de asistencia |
-| `/nomina` | Autenticado | Consulta, creación y generación de nómina |
-| `/usuarios` | Admin o gerente | Gestión de usuarios |
-| `/sucursales` | Admin general | Gestión de sucursales |
+| `/login` | Public | Sign-in |
+| `/registro` | Public | Company and administrator registration |
+| `/` | Authenticated | Home page |
+| `/asistencia` | Authenticated | Attendance records and actions |
+| `/nomina` | Authenticated | Payroll lookup, creation, and generation |
+| `/usuarios` | Admin or manager | User management |
+| `/sucursales` | General admin | Branch management |
 
-## Estructura
+## Folder structure
 
 ```text
 src/
 ├── api/
-│   ├── client.ts       # Cliente Axios, interceptores JWT y helper getListData (normaliza respuestas paginadas)
-│   └── types.ts        # Tipos de la API
+│   ├── client.ts
+│   └── types.ts
 ├── auth/
-│   ├── AuthContext.tsx # Login, logout y usuario actual
+│   ├── AuthContext.tsx
 │   └── ProtectedRoute.tsx
 ├── components/
 │   └── Layout.tsx
 ├── pages/
 │   ├── LoginPage.tsx
-│   ├── RegistroPage.tsx
+│   ├── RegisterPage.tsx
 │   ├── HomePage.tsx
-│   ├── AsistenciaPage.tsx
-│   ├── NominaPage.tsx
-│   ├── UsuariosPage.tsx
-│   └── SucursalesPage.tsx
+│   ├── AttendancePage.tsx
+│   ├── PayrollPage.tsx
+│   ├── UsersPage.tsx
+│   └── BranchesPage.tsx
 ├── App.tsx
 ├── index.css
 └── main.tsx
 ```
 
-## Backend requerido
+## Required backend API
 
-El frontend espera que el backend exponga, como mínimo:
+The frontend expects the backend to expose at least:
 
 - `POST /api/auth/login/`
 - `POST /api/auth/refresh/`
 - `POST /api/empresas/registro/`
 - `GET /api/usuarios/me/`
-- Los endpoints de asistencia, nómina, usuarios y sucursales utilizados por cada página
+- The attendance, payroll, user, and branch endpoints used by each page
 
-El registro público debe aceptar este JSON:
+Public registration must accept this JSON:
 
 ```json
 {
-  "nombre_empresa": "Empresa de ejemplo",
+  "nombre_empresa": "Example Company",
   "nombre_admin": "Ana",
-  "apellido_admin": "Pérez",
+  "apellido_admin": "Perez",
   "email": "ana@example.com",
   "username": "ana.perez",
-  "password": "UnaClaveSegura123!"
+  "password": "A Secure Password 123!"
 }
 ```
 
-Después del registro, el frontend inicia sesión automáticamente con el usuario y contraseña creados.
+After registration, the frontend automatically signs in with the created credentials.
 
 ## CORS
 
-El backend debe permitir el origen del frontend. En desarrollo local, agrega:
+The backend must allow the frontend origin. For local development, add:
 
 ```env
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 
-Si Vite inicia en otro puerto, usa ese origen exacto.
+If Vite starts on another port, use that exact origin.
 
-## Build de producción
+## Production build
 
 ```bash
 npm run build
 ```
 
-Este comando ejecuta la comprobación de TypeScript y genera los archivos estáticos en `dist/`.
+This command runs the TypeScript check and generates static files in `dist/`.
 
-Para revisar localmente el build generado:
+To inspect the generated build locally:
 
 ```bash
 npm run preview
 ```
 
-## Despliegue
+## Deployment
 
-Configura en el proveedor de hosting:
+Configure the hosting provider with:
 
-- Comando de build: `npm run build`
-- Directorio de salida: `dist`
-- Variable `VITE_API_URL`: URL base pública del backend
+- Build command: `npm run build`
+- Output directory: `dist`
+- `VITE_API_URL`: public backend base URL
 
-Como es una SPA, el hosting debe redirigir las rutas desconocidas a `index.html` para que funcionen `/login` y `/registro` al recargar la página.
+Because this is a single-page application, the host must redirect unknown routes to `index.html` so `/login` and `/registro` continue to work after a refresh.

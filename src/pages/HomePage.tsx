@@ -1,21 +1,21 @@
 import { useAuth } from "../auth/AuthContext";
 
-const SALUDO_ROL: Record<string, string> = {
-  admin_general: "Tienes visibilidad de todas las sucursales.",
-  gerente_sucursal: "Aquí puedes gestionar la asistencia y nómina de tu sucursal.",
-  empleado: "Marca tu asistencia y consulta tu nómina desde aquí.",
+const ROLE_GREETING: Record<string, string> = {
+  admin_general: "You have visibility across all branches.",
+  gerente_sucursal: "You can manage attendance and payroll for your branch here.",
+  empleado: "Check in and review your payroll here.",
 };
 
 export function HomePage() {
-  const { usuario } = useAuth();
-  if (!usuario) return null;
+  const { user } = useAuth();
+  if (!user) return null;
 
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">
-        Hola, {usuario.first_name || usuario.username}
+        Hello, {user.first_name || user.username}
       </h1>
-      <p className="mt-2 text-ink/60">{SALUDO_ROL[usuario.rol]}</p>
+      <p className="mt-2 text-ink/60">{ROLE_GREETING[user.rol]}</p>
     </div>
   );
 }

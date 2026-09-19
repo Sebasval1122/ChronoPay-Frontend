@@ -7,18 +7,18 @@ export function LoginPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [enviando, setEnviando] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setEnviando(true);
+    setSubmitting(true);
     try {
       await login(username, password);
       navigate("/");
     } catch {
-      // el error ya queda expuesto por useAuth().error
+      // The error is exposed through useAuth().error.
     } finally {
-      setEnviando(false);
+      setSubmitting(false);
     }
   }
 
@@ -29,13 +29,13 @@ export function LoginPage() {
           ChronoPay
         </h1>
         <p className="mb-8 text-sm text-ink/60">
-          Ingresa con tu usuario para continuar.
+          Sign in with your username to continue.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-line bg-white p-6">
           <div>
             <label htmlFor="username" className="mb-1 block text-sm font-medium">
-              Usuario
+              Username
             </label>
             <input
               id="username"
@@ -49,7 +49,7 @@ export function LoginPage() {
 
           <div>
             <label htmlFor="password" className="mb-1 block text-sm font-medium">
-              Contraseña
+              Password
             </label>
             <input
               id="password"
@@ -68,14 +68,14 @@ export function LoginPage() {
 
           <button
             type="submit"
-            disabled={enviando}
+            disabled={submitting}
             className="w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-60"
           >
-            {enviando ? "Ingresando…" : "Ingresar"}
+            {submitting ? "Signing in…" : "Sign in"}
           </button>
 
           <Link to="/registro" className="block text-center text-sm text-primary hover:underline">
-            ¿No tienes cuenta? Regístrate
+            Don't have an account? Register
           </Link>
         </form>
       </div>

@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { api, getListData } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
-import type { Marcaje } from "../api/types";
+import type { AttendanceRecord } from "../api/types";
 
 function formatearHora(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
 }
 
-export function AsistenciaPage() {
-  const { usuario } = useAuth();
-  const [marcajes, setMarcajes] = useState<Marcaje[]>([]);
+export function AttendancePage() {
+  const { user } = useAuth();
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [cargando, setCargando] = useState(true);
   const [accionEnCurso, setAccionEnCurso] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -18,8 +18,8 @@ export function AsistenciaPage() {
   async function cargarMarcajes() {
     setCargando(true);
     try {
-      const { data } = await api.get<Marcaje[] | { results: Marcaje[] }>("/api/asistencia/marcajes/");
-      setMarcajes(getListData(data));
+      const { data } = await api.get<AttendanceRecord[] | { results: AttendanceRecord[] }>("/api/asistencia/marcajes/");
+      setRecords(getListData(data));
     } finally {
       setCargando(false);
     }
@@ -29,8 +29,8 @@ export function AsistenciaPage() {
     cargarMarcajes();
   }, []);
 
-  const marcajeAbiertoHoy = marcajes.find(
-    (m) => m.empleado === usuario?.id && !m.salida
+  const openRecordToday = records.find(
+    (record) => record.empleado === user?.id && !record.salida
   );
 
   async function marcarEntrada() {
@@ -38,25 +38,25 @@ export function AsistenciaPage() {
     setMensaje(null);
     try {
       await api.post("/api/asistencia/marcajes/marcar-entrada/");
-      setMensaje("Entrada registrada.");
+      setMensaje("Check-in recorded.");
       await cargarMarcajes();
     } catch (err: any) {
-      setMensaje(err?.response?.data?.detail ?? "No se pudo registrar la entrada.");
+      setMensaje(err?.response?.data?.detail ?? "Check-in could not be recorded.");
     } finally {
       setAccionEnCurso(false);
     }
   }
 
   async function marcarSalida() {
-    if (!marcajeAbiertoHoy) return;
+    if (!openRecordToday) return;
     setAccionEnCurso(true);
     setMensaje(null);
     try {
-      await api.post(`/api/asistencia/marcajes/${marcajeAbiertoHoy.id}/marcar-salida/`);
-      setMensaje("Salida registrada.");
+      await api.post(`/api/asistencia/marcajes/${openRecordToday.id}/marcar-salida/`);
+      setMensaje("Check-out recorded.");
       await cargarMarcajes();
     } catch (err: any) {
-      setMensaje(err?.response?.data?.detail ?? "No se pudo registrar la salida.");
+      setMensaje(err?.response?.data?.detail ?? "Check-out could not be recorded.");
     } finally {
       setAccionEnCurso(false);
     }
@@ -64,29 +64,29 @@ export function AsistenciaPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Asistencia</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Attendance</h1>
 
-      {usuario?.rol === "empleado" && (
+      {user?.rol === "empleado" && (
         <div className="mt-6 rounded-lg border border-line bg-white p-6">
           <p className="text-sm text-ink/60">
-            {marcajeAbiertoHoy
-              ? `Entrada de hoy: ${formatearHora(marcajeAbiertoHoy.entrada)}`
-              : "Aún no has marcado entrada hoy."}
+            {openRecordToday
+              ? `Today's check-in: ${formatearHora(openRecordToday.entrada)}`
+              : "You have not checked in today yet."}
           </p>
           <div className="mt-4 flex gap-3">
             <button
               onClick={marcarEntrada}
-              disabled={accionEnCurso || !!marcajeAbiertoHoy}
+              disabled={accionEnCurso || !!openRecordToday}
               className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50"
             >
-              Marcar entrada
+              Check in
             </button>
             <button
               onClick={marcarSalida}
-              disabled={accionEnCurso || !marcajeAbiertoHoy}
+              disabled={accionEnCurso || !openRecordToday}
               className="rounded-md border border-line px-4 py-2 text-sm font-medium hover:bg-surface disabled:opacity-50"
             >
-              Marcar salida
+              Check out
             </button>
           </div>
           {mensaje && <p className="mt-3 text-sm text-ink/70">{mensaje}</p>}
@@ -97,30 +97,30 @@ export function AsistenciaPage() {
         <table className="w-full text-left text-sm">
           <thead className="border-b border-line bg-surface text-ink/60">
             <tr>
-              {usuario?.rol !== "empleado" && <th className="px-4 py-3 font-medium">Empleado</th>}
-              <th className="px-4 py-3 font-medium">Fecha</th>
-              <th className="px-4 py-3 font-medium">Entrada</th>
-              <th className="px-4 py-3 font-medium">Salida</th>
-              <th className="px-4 py-3 font-medium">Horas</th>
+              {user?.rol !== "empleado" && <th className="px-4 py-3 font-medium">Employee</th>}
+              <th className="px-4 py-3 font-medium">Date</th>
+              <th className="px-4 py-3 font-medium">Check-in</th>
+              <th className="px-4 py-3 font-medium">Check-out</th>
+              <th className="px-4 py-3 font-medium">Hours</th>
             </tr>
           </thead>
           <tbody>
             {cargando ? (
               <tr>
                 <td className="px-4 py-4 text-ink/50" colSpan={5}>
-                  Cargando…
+                  Loading…
                 </td>
               </tr>
-            ) : marcajes.length === 0 ? (
+            ) : records.length === 0 ? (
               <tr>
                 <td className="px-4 py-4 text-ink/50" colSpan={5}>
-                  Todavía no hay marcajes registrados.
+                  No attendance records yet.
                 </td>
               </tr>
             ) : (
-              marcajes.map((m) => (
+              records.map((m) => (
                 <tr key={m.id} className="border-b border-line last:border-0">
-                  {usuario?.rol !== "empleado" && (
+                  {user?.rol !== "empleado" && (
                     <td className="px-4 py-3">{m.empleado_nombre ?? m.empleado}</td>
                   )}
                   <td className="px-4 py-3">{m.fecha}</td>

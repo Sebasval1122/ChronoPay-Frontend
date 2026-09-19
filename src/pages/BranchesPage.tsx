@@ -1,11 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, getListData } from "../api/client";
-import type { Sucursal } from "../api/types";
+import type { Branch } from "../api/types";
 
 const ESTADO_INICIAL = { nombre: "", codigo: "", ciudad: "", direccion: "" };
 
-export function SucursalesPage() {
-  const [sucursales, setSucursales] = useState<Sucursal[]>([]);
+export function BranchesPage() {
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [cargando, setCargando] = useState(true);
   const [form, setForm] = useState(ESTADO_INICIAL);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -13,8 +13,8 @@ export function SucursalesPage() {
   async function cargar() {
     setCargando(true);
     try {
-      const { data } = await api.get<Sucursal[] | { results: Sucursal[] }>("/api/sucursales/");
-      setSucursales(getListData(data));
+      const { data } = await api.get<Branch[] | { results: Branch[] }>("/api/sucursales/");
+      setBranches(getListData(data));
     } finally {
       setCargando(false);
     }
@@ -32,13 +32,13 @@ export function SucursalesPage() {
       setForm(ESTADO_INICIAL);
       await cargar();
     } catch {
-      setMensaje("No se pudo crear la sucursal (revisa que el código sea único).");
+      setMensaje("The branch could not be created (check that the code is unique).");
     }
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Sucursales</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Branches</h1>
 
       <form
         onSubmit={crear}
@@ -52,20 +52,20 @@ export function SucursalesPage() {
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
-          placeholder="Código"
+          placeholder="Code"
           value={form.codigo}
           onChange={(e) => setForm({ ...form, codigo: e.target.value })}
           required
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
-          placeholder="Ciudad"
+          placeholder="City"
           value={form.ciudad}
           onChange={(e) => setForm({ ...form, ciudad: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
-          placeholder="Dirección"
+          placeholder="Address"
           value={form.direccion}
           onChange={(e) => setForm({ ...form, direccion: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
@@ -74,7 +74,7 @@ export function SucursalesPage() {
           type="submit"
           className="col-span-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark sm:col-span-1"
         >
-          Crear sucursal
+          Create branch
         </button>
       </form>
 
@@ -86,19 +86,19 @@ export function SucursalesPage() {
             <tr>
               <th className="px-4 py-3 font-medium">ID</th>
               <th className="px-4 py-3 font-medium">Nombre</th>
-              <th className="px-4 py-3 font-medium">Código</th>
-              <th className="px-4 py-3 font-medium">Ciudad</th>
+              <th className="px-4 py-3 font-medium">Code</th>
+              <th className="px-4 py-3 font-medium">City</th>
             </tr>
           </thead>
           <tbody>
             {cargando ? (
               <tr>
                 <td className="px-4 py-4 text-ink/50" colSpan={4}>
-                  Cargando…
+                  Loading…
                 </td>
               </tr>
             ) : (
-              sucursales.map((s) => (
+              branches.map((s) => (
                 <tr key={s.id} className="border-b border-line last:border-0">
                   <td className="px-4 py-3">{s.id}</td>
                   <td className="px-4 py-3">{s.nombre}</td>

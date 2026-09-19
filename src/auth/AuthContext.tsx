@@ -6,11 +6,11 @@ import {
   type ReactNode,
 } from "react";
 import { api, tokenStorage } from "../api/client";
-import type { Usuario, LoginResponse } from "../api/types";
+import type { User, LoginResponse } from "../api/types";
 
 interface AuthContextValue {
-  usuario: Usuario | null;
-  cargando: boolean;
+  user: User | null;
+  loading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
@@ -19,27 +19,27 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function cargarUsuarioActual() {
+  async function loadCurrentUser() {
     try {
-      const { data } = await api.get<Usuario>("/api/usuarios/me/");
-      setUsuario(data);
+      const { data } = await api.get<User>("/api/usuarios/me/");
+      setUser(data);
     } catch {
       tokenStorage.clear();
-      setUsuario(null);
+      setUser(null);
     } finally {
-      setCargando(false);
+      setLoading(false);
     }
   }
 
   useEffect(() => {
     if (tokenStorage.getAccess()) {
-      cargarUsuarioActual();
+      loadCurrentUser();
     } else {
-      setCargando(false);
+      setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -52,20 +52,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
       tokenStorage.setTokens(data.access, data.refresh);
-      await cargarUsuarioActual();
+      await loadCurrentUser();
     } catch {
-      setError("Usuario o contraseña incorrectos.");
+      setError("Incorrect username or password.");
       throw new Error("login_failed");
     }
   }
 
   function logout() {
     tokenStorage.clear();
-    setUsuario(null);
+    setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, cargando, error, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, error, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -73,6 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth debe usarse dentro de <AuthProvider>");
+  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
   return ctx;
 }
