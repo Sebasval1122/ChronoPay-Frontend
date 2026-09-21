@@ -111,7 +111,7 @@ export function RegisterPage() {
 
     setEnviando(true);
     try {
-      await api.post("/api/companies/registro/", {
+        await api.post("/api/companies/register/", {
         company_name: nombreEmpresa,
         admin_first_name: nombreAdmin,
         admin_last_name: apellidoAdmin,
