@@ -3,7 +3,7 @@ import { useAuth } from "../auth/AuthContext";
 const ROLE_GREETING: Record<string, string> = {
   admin_general: "You have visibility across all branches.",
   gerente_sucursal: "You can manage attendance and payroll for your branch here.",
-  empleado: "Check in and review your payroll here.",
+  employee: "Check in and review your payroll here.",
 };
 
 export function HomePage() {

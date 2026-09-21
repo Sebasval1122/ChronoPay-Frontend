@@ -15,7 +15,7 @@ export function PayrollPage() {
   const { user } = useAuth();
   const [payrolls, setPayrolls] = useState<Payroll[]>([]);
   const [cargando, setCargando] = useState(true);
-  const [form, setForm] = useState({ sucursal: "", periodo_inicio: "", periodo_fin: "" });
+  const [form, setForm] = useState({ branch: "", period_start: "", period_end: "" });
   const [guardando, setGuardando] = useState(false);
   const [generando, setGenerando] = useState<number | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export function PayrollPage() {
   async function cargarNominas() {
     setCargando(true);
     try {
-      const { data } = await api.get<Payroll[] | { results: Payroll[] }>("/api/nomina/");
+      const { data } = await api.get<Payroll[] | { results: Payroll[] }>("/api/payroll/");
       setPayrolls(getListData(data));
     } catch {
       setMensaje("Payroll could not be loaded.");
@@ -42,20 +42,20 @@ export function PayrollPage() {
     event.preventDefault();
     setMensaje(null);
 
-    const sucursal = user?.rol === "gerente_sucursal" ? user.sucursal : Number(form.sucursal);
-    if (!sucursal) {
+    const branch = user?.rol === "gerente_sucursal" ? user.branch : Number(form.branch);
+    if (!branch) {
       setMensaje("You must provide a valid branch.");
       return;
     }
 
     setGuardando(true);
     try {
-      await api.post("/api/nomina/", {
-        sucursal,
-        periodo_inicio: form.periodo_inicio,
-        periodo_fin: form.periodo_fin,
+      await api.post("/api/payroll/", {
+        branch,
+        period_start: form.period_start,
+        period_end: form.period_end,
       });
-      setForm({ sucursal: "", periodo_inicio: "", periodo_fin: "" });
+      setForm({ branch: "", period_start: "", period_end: "" });
       await cargarNominas();
     } catch {
       setMensaje("The payroll period could not be created.");
@@ -68,7 +68,7 @@ export function PayrollPage() {
     setGenerando(nominaId);
     setMensaje(null);
     try {
-      await api.post(`/api/nomina/${nominaId}/generar/`);
+      await api.post(`/api/payroll/${nominaId}/generar/`);
       await cargarNominas();
     } catch {
       setMensaje("Payroll could not be generated.");
@@ -79,7 +79,7 @@ export function PayrollPage() {
 
   function abrirComprobante(detalleId: number) {
     window.open(
-      `${import.meta.env.VITE_API_URL}/api/comprobantes/${detalleId}/pdf/`,
+      `${import.meta.env.VITE_API_URL}/api/pay_slips/${detalleId}/pdf/`,
       "_blank",
       "noopener,noreferrer",
     );
@@ -89,7 +89,7 @@ export function PayrollPage() {
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">Payroll</h1>
       <p className="mt-2 text-sm text-ink/60">
-        {user?.rol === "empleado" ? "Review your payroll periods." : "Recorded payroll periods."}
+        {user?.rol === "employee" ? "Review your payroll periods." : "Recorded payroll periods."}
       </p>
 
       {canManage && (
@@ -102,29 +102,29 @@ export function PayrollPage() {
               type="number"
               min="1"
               placeholder="Branch ID"
-              value={form.sucursal}
-              onChange={(event) => setForm({ ...form, sucursal: event.target.value })}
+              value={form.branch}
+              onChange={(event) => setForm({ ...form, branch: event.target.value })}
               required
               className="rounded-md border border-line px-3 py-2 text-sm"
             />
           ) : (
             <input
-              value={`Branch ${user?.sucursal ?? "not assigned"}`}
+              value={`Branch ${user?.branch ?? "not assigned"}`}
               readOnly
               className="rounded-md border border-line bg-surface px-3 py-2 text-sm"
             />
           )}
           <input
             type="date"
-            value={form.periodo_inicio}
-            onChange={(event) => setForm({ ...form, periodo_inicio: event.target.value })}
+            value={form.period_start}
+            onChange={(event) => setForm({ ...form, period_start: event.target.value })}
             required
             className="rounded-md border border-line px-3 py-2 text-sm"
           />
           <input
             type="date"
-            value={form.periodo_fin}
-            onChange={(event) => setForm({ ...form, periodo_fin: event.target.value })}
+            value={form.period_end}
+            onChange={(event) => setForm({ ...form, period_end: event.target.value })}
             required
             className="rounded-md border border-line px-3 py-2 text-sm"
           />
@@ -154,9 +154,9 @@ export function PayrollPage() {
             <section key={payroll.id} className="overflow-hidden rounded-lg border border-line bg-white">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-surface px-4 py-3">
                 <div>
-                  <h2 className="font-medium">{payroll.periodo_inicio} - {payroll.periodo_fin}</h2>
+                  <h2 className="font-medium">{payroll.period_start} - {payroll.period_end}</h2>
                   <p className="text-sm text-ink/60">
-                    Status: {payroll.estado} · Total: {formatearMoneda(payroll.total)}
+                    Status: {payroll.status} · Total: {formatearMoneda(payroll.total)}
                   </p>
                 </div>
                 {canManage && (
@@ -186,11 +186,11 @@ export function PayrollPage() {
                   <tbody>
                     {payroll.detalles.map((detalle) => (
                       <tr key={detalle.id} className="border-b border-line last:border-0">
-                        {canManage && <td className="px-4 py-3">{detalle.usuario_nombre}</td>}
-                        <td className="px-4 py-3">{detalle.horas_extra}</td>
-                        <td className="px-4 py-3">{formatearMoneda(detalle.recargos)}</td>
-                        <td className="px-4 py-3">{formatearMoneda(detalle.retencion_fuente)}</td>
-                        <td className="px-4 py-3 font-semibold">{formatearMoneda(detalle.total_neto)}</td>
+                        {canManage && <td className="px-4 py-3">{detalle.user_name}</td>}
+                          <td className="px-4 py-3">{detalle.overtime_hours}</td>
+                          <td className="px-4 py-3">{formatearMoneda(detalle.surcharges)}</td>
+                          <td className="px-4 py-3">{formatearMoneda(detalle.withholding)}</td>
+                          <td className="px-4 py-3 font-semibold">{formatearMoneda(detalle.net_total)}</td>
                         <td className="px-4 py-3">
                           <button
                             type="button"

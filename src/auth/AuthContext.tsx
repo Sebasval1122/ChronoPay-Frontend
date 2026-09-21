@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loadCurrentUser() {
     try {
-      const { data } = await api.get<User>("/api/usuarios/me/");
+      const { data } = await api.get<User>("/api/users/me/");
       setUser(data);
     } catch {
       tokenStorage.clear();

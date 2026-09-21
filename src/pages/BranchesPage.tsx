@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { api, getListData } from "../api/client";
 import type { Branch } from "../api/types";
 
-const ESTADO_INICIAL = { nombre: "", codigo: "", ciudad: "", direccion: "" };
+const ESTADO_INICIAL = { name: "", codigo: "", city: "", address: "", phone: "" };
 
 export function BranchesPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -13,7 +13,7 @@ export function BranchesPage() {
   async function cargar() {
     setCargando(true);
     try {
-      const { data } = await api.get<Branch[] | { results: Branch[] }>("/api/sucursales/");
+      const { data } = await api.get<Branch[] | { results: Branch[] }>("/api/branches/");
       setBranches(getListData(data));
     } finally {
       setCargando(false);
@@ -28,7 +28,7 @@ export function BranchesPage() {
     e.preventDefault();
     setMensaje(null);
     try {
-      await api.post("/api/sucursales/", form);
+      await api.post("/api/branches/", form);
       setForm(ESTADO_INICIAL);
       await cargar();
     } catch {
@@ -45,9 +45,9 @@ export function BranchesPage() {
         className="mt-6 grid grid-cols-2 gap-4 rounded-lg border border-line bg-white p-6 sm:grid-cols-4"
       >
         <input
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+          placeholder="Name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
@@ -60,14 +60,20 @@ export function BranchesPage() {
         />
         <input
           placeholder="City"
-          value={form.ciudad}
-          onChange={(e) => setForm({ ...form, ciudad: e.target.value })}
+          value={form.city}
+          onChange={(e) => setForm({ ...form, city: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
           placeholder="Address"
-          value={form.direccion}
-          onChange={(e) => setForm({ ...form, direccion: e.target.value })}
+          value={form.address}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+          className="rounded-md border border-line px-3 py-2 text-sm"
+        />
+        <input
+          placeholder="Phone (optional)"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <button
@@ -101,9 +107,9 @@ export function BranchesPage() {
               branches.map((s) => (
                 <tr key={s.id} className="border-b border-line last:border-0">
                   <td className="px-4 py-3">{s.id}</td>
-                  <td className="px-4 py-3">{s.nombre}</td>
+                  <td className="px-4 py-3">{s.name}</td>
                   <td className="px-4 py-3">{s.codigo}</td>
-                  <td className="px-4 py-3">{s.ciudad}</td>
+                  <td className="px-4 py-3">{s.city}</td>
                 </tr>
               ))
             )}

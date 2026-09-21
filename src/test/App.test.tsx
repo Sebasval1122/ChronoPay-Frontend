@@ -68,10 +68,10 @@ describe("RegisterPage", () => {
     await user.click(screen.getByRole("button", { name: "Register" }));
 
     await waitFor(() => expect(screen.getByText("Authenticated home")).toBeInTheDocument());
-    expect(postMock).toHaveBeenCalledWith("/api/empresas/registro/", {
-      nombre_empresa: "ChronoPay SAS",
-      nombre_admin: "Ana",
-      apellido_admin: "Pérez",
+    expect(postMock).toHaveBeenCalledWith("/api/companies/registro/", {
+      company_name: "ChronoPay SAS",
+      admin_first_name: "Ana",
+      admin_last_name: "Pérez",
       email: "ana@example.com",
       username: "ana.perez",
       password: "ClaveSegura123!",
@@ -176,12 +176,12 @@ describe("ProtectedRoute", () => {
         first_name: "",
         last_name: "",
         email: "empleado@example.com",
-        cedula: null,
-        telefono: "",
-        rol: "empleado",
-        sucursal: null,
-        salario_actual: null,
-        activo: true,
+        national_id: null,
+        phone: "",
+        rol: "employee",
+        branch: null,
+        current_salary: null,
+        active: true,
         date_joined: "2026-01-01",
       },
       loading: false,

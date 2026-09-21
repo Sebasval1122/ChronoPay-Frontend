@@ -18,7 +18,7 @@ export function AttendancePage() {
   async function cargarMarcajes() {
     setCargando(true);
     try {
-      const { data } = await api.get<AttendanceRecord[] | { results: AttendanceRecord[] }>("/api/asistencia/marcajes/");
+      const { data } = await api.get<AttendanceRecord[] | { results: AttendanceRecord[] }>("/api/attendance/marcajes/");
       setRecords(getListData(data));
     } finally {
       setCargando(false);
@@ -30,14 +30,14 @@ export function AttendancePage() {
   }, []);
 
   const openRecordToday = records.find(
-    (record) => record.empleado === user?.id && !record.salida
+    (record) => record.employee === user?.id && !record.clock_out_time
   );
 
   async function marcarEntrada() {
     setAccionEnCurso(true);
     setMensaje(null);
     try {
-      await api.post("/api/asistencia/marcajes/marcar-entrada/");
+      await api.post("/api/attendance/marcajes/clock-in/");
       setMensaje("Check-in recorded.");
       await cargarMarcajes();
     } catch (err: any) {
@@ -52,7 +52,7 @@ export function AttendancePage() {
     setAccionEnCurso(true);
     setMensaje(null);
     try {
-      await api.post(`/api/asistencia/marcajes/${openRecordToday.id}/marcar-salida/`);
+      await api.post(`/api/attendance/marcajes/${openRecordToday.id}/clock-out/`);
       setMensaje("Check-out recorded.");
       await cargarMarcajes();
     } catch (err: any) {
@@ -66,11 +66,11 @@ export function AttendancePage() {
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">Attendance</h1>
 
-      {user?.rol === "empleado" && (
+      {user?.rol === "employee" && (
         <div className="mt-6 rounded-lg border border-line bg-white p-6">
           <p className="text-sm text-ink/60">
             {openRecordToday
-              ? `Today's check-in: ${formatearHora(openRecordToday.entrada)}`
+              ? `Today's check-in: ${formatearHora(openRecordToday.clock_in_time)}`
               : "You have not checked in today yet."}
           </p>
           <div className="mt-4 flex gap-3">
@@ -97,7 +97,7 @@ export function AttendancePage() {
         <table className="w-full text-left text-sm">
           <thead className="border-b border-line bg-surface text-ink/60">
             <tr>
-              {user?.rol !== "empleado" && <th className="px-4 py-3 font-medium">Employee</th>}
+              {user?.rol !== "employee" && <th className="px-4 py-3 font-medium">Employee</th>}
               <th className="px-4 py-3 font-medium">Date</th>
               <th className="px-4 py-3 font-medium">Check-in</th>
               <th className="px-4 py-3 font-medium">Check-out</th>
@@ -120,13 +120,13 @@ export function AttendancePage() {
             ) : (
               records.map((m) => (
                 <tr key={m.id} className="border-b border-line last:border-0">
-                  {user?.rol !== "empleado" && (
-                    <td className="px-4 py-3">{m.empleado_nombre ?? m.empleado}</td>
+                  {user?.rol !== "employee" && (
+                    <td className="px-4 py-3">{m.employee_name ?? m.employee}</td>
                   )}
-                  <td className="px-4 py-3">{m.fecha}</td>
-                  <td className="px-4 py-3">{formatearHora(m.entrada)}</td>
-                  <td className="px-4 py-3">{formatearHora(m.salida)}</td>
-                  <td className="px-4 py-3">{m.horas_trabajadas ?? "—"}</td>
+                  <td className="px-4 py-3">{m.date}</td>
+                  <td className="px-4 py-3">{formatearHora(m.clock_in_time)}</td>
+                  <td className="px-4 py-3">{formatearHora(m.clock_out_time)}</td>
+                  <td className="px-4 py-3">{m.worked_hours ?? "—"}</td>
                 </tr>
               ))
             )}

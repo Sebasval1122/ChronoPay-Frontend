@@ -9,9 +9,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: "/", label: "Home", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
-  { to: "/asistencia", label: "Attendance", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
-  { to: "/nomina", label: "Payroll", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
+  { to: "/", label: "Home", allowedRoles: ["admin_general", "gerente_sucursal", "employee"] },
+  { to: "/asistencia", label: "Attendance", allowedRoles: ["admin_general", "gerente_sucursal", "employee"] },
+  { to: "/nomina", label: "Payroll", allowedRoles: ["admin_general", "gerente_sucursal", "employee"] },
   { to: "/dashboard", label: "Dashboard", allowedRoles: ["admin_general", "gerente_sucursal"] },
   { to: "/usuarios", label: "Users", allowedRoles: ["admin_general", "gerente_sucursal"] },
   { to: "/sucursales", label: "Branches", allowedRoles: ["admin_general"] },
@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
 const ROLE_LABEL: Record<Role, string> = {
   admin_general: "General admin",
   gerente_sucursal: "Branch manager",
-  empleado: "Employee",
+  employee: "Employee",
 };
 
 export function Layout() {

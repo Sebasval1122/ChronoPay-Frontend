@@ -60,7 +60,7 @@ export function DashboardPage() {
   }
 
   function puedeEditarSucursal(branchId: number) {
-    return user?.rol === "admin_general" || user?.sucursal === branchId;
+    return user?.rol === "admin_general" || user?.branch === branchId;
   }
 
   function iniciarEdicion(branch: DashboardBranch) {

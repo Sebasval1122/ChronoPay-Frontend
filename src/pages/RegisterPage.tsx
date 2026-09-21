@@ -5,9 +5,9 @@ import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 
 const CAMPOS_REGISTRO = [
-  "nombre_empresa",
-  "nombre_admin",
-  "apellido_admin",
+  "company_name",
+  "admin_first_name",
+  "admin_last_name",
   "email",
   "username",
   "password",
@@ -111,10 +111,10 @@ export function RegisterPage() {
 
     setEnviando(true);
     try {
-      await api.post("/api/empresas/registro/", {
-        nombre_empresa: nombreEmpresa,
-        nombre_admin: nombreAdmin,
-        apellido_admin: apellidoAdmin,
+      await api.post("/api/companies/registro/", {
+        company_name: nombreEmpresa,
+        admin_first_name: nombreAdmin,
+        admin_last_name: apellidoAdmin,
         email,
         username,
         password,
@@ -153,8 +153,8 @@ export function RegisterPage() {
               className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-primary focus:outline-none"
               required
             />
-            {erroresCampo.nombre_empresa && (
-              <p className="mt-1 text-sm text-alert">{erroresCampo.nombre_empresa}</p>
+            {erroresCampo.company_name && (
+              <p className="mt-1 text-sm text-alert">{erroresCampo.company_name}</p>
             )}
           </div>
 
@@ -171,8 +171,8 @@ export function RegisterPage() {
               autoComplete="given-name"
               required
             />
-            {erroresCampo.nombre_admin && (
-              <p className="mt-1 text-sm text-alert">{erroresCampo.nombre_admin}</p>
+            {erroresCampo.admin_first_name && (
+              <p className="mt-1 text-sm text-alert">{erroresCampo.admin_first_name}</p>
             )}
           </div>
 
@@ -189,8 +189,8 @@ export function RegisterPage() {
               autoComplete="family-name"
               required
             />
-            {erroresCampo.apellido_admin && (
-              <p className="mt-1 text-sm text-alert">{erroresCampo.apellido_admin}</p>
+            {erroresCampo.admin_last_name && (
+              <p className="mt-1 text-sm text-alert">{erroresCampo.admin_last_name}</p>
             )}
           </div>
 

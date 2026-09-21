@@ -71,7 +71,7 @@ These features do not exist yet in either the backend or this frontend:
 
 - `admin_general`: global access, users, and branches.
 - `gerente_sucursal`: user management and branch operations.
-- `empleado`: attendance and personal information lookup.
+- `employee`: attendance and personal information lookup.
 
 Authorization must always be validated by the backend. Frontend restrictions only control navigation and user experience.
 
@@ -84,6 +84,7 @@ Authorization must always be validated by the backend. Frontend restrictions onl
 | `/` | Authenticated | Home page |
 | `/asistencia` | Authenticated | Attendance records and actions |
 | `/nomina` | Authenticated | Payroll lookup, creation, and generation |
+| `/dashboard` | Admin or manager | Branch payroll and attendance dashboard |
 | `/usuarios` | Admin or manager | User management |
 | `/sucursales` | General admin | Branch management |
 
@@ -106,7 +107,8 @@ src/
 │   ├── AttendancePage.tsx
 │   ├── PayrollPage.tsx
 │   ├── UsersPage.tsx
-│   └── BranchesPage.tsx
+│   ├── BranchesPage.tsx
+│   └── DashboardPage.tsx
 ├── App.tsx
 ├── index.css
 └── main.tsx
@@ -118,17 +120,22 @@ The frontend expects the backend to expose at least:
 
 - `POST /api/auth/login/`
 - `POST /api/auth/refresh/`
-- `POST /api/empresas/registro/`
-- `GET /api/usuarios/me/`
-- The attendance, payroll, user, and branch endpoints used by each page
+- `POST /api/companies/registro/`
+- `GET /api/users/me/`
+- `GET /api/users/` and `POST /api/users/`
+- `GET /api/branches/` and `POST /api/branches/`
+- `GET /api/attendance/marcajes/`, `POST /api/attendance/marcajes/clock-in/`, and `POST /api/attendance/marcajes/{id}/clock-out/`
+- `GET /api/payroll/`, `POST /api/payroll/`, and `POST /api/payroll/{id}/generar/`
+- `GET /api/pay_slips/{id}/pdf/`
+- `GET /api/budgets/` and `GET /api/dashboard/branches/`
 
 Public registration must accept this JSON:
 
 ```json
 {
-  "nombre_empresa": "Example Company",
-  "nombre_admin": "Ana",
-  "apellido_admin": "Perez",
+  "company_name": "Example Company",
+  "admin_first_name": "Ana",
+  "admin_last_name": "Perez",
   "email": "ana@example.com",
   "username": "ana.perez",
   "password": "A Secure Password 123!"

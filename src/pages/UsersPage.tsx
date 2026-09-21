@@ -6,7 +6,7 @@ import type { Role, User } from "../api/types";
 const ROLE_LABEL: Record<Role, string> = {
   admin_general: "General admin",
   gerente_sucursal: "Branch manager",
-  empleado: "Employee",
+  employee: "Employee",
 };
 
 const ESTADO_INICIAL = {
@@ -14,9 +14,9 @@ const ESTADO_INICIAL = {
   password: "",
   first_name: "",
   last_name: "",
-  rol: "empleado" as Role,
-  sucursal: "",
-  salario_actual: "",
+  rol: "employee" as Role,
+  branch: "",
+  current_salary: "",
 };
 
 export function UsersPage() {
@@ -30,7 +30,7 @@ export function UsersPage() {
   async function cargar() {
     setCargando(true);
     try {
-      const { data } = await api.get<User[] | { results: User[] }>("/api/usuarios/");
+      const { data } = await api.get<User[] | { results: User[] }>("/api/users/");
       setUsers(getListData(data));
     } finally {
       setCargando(false);
@@ -46,10 +46,10 @@ export function UsersPage() {
     setGuardando(true);
     setMensaje(null);
     try {
-      await api.post("/api/usuarios/", {
+      await api.post("/api/users/", {
         ...form,
-        sucursal: form.sucursal ? Number(form.sucursal) : null,
-        salario_actual: form.salario_actual || null,
+        branch: form.branch ? Number(form.branch) : null,
+        current_salary: form.current_salary || null,
       });
       setForm(ESTADO_INICIAL);
       await cargar();
@@ -106,18 +106,18 @@ export function UsersPage() {
         >
           {user?.rol === "admin_general" && <option value="admin_general">General admin</option>}
           <option value="gerente_sucursal">Branch manager</option>
-          <option value="empleado">Employee</option>
+          <option value="employee">Employee</option>
         </select>
         <input
           placeholder="Branch ID"
-          value={form.sucursal}
-          onChange={(e) => setForm({ ...form, sucursal: e.target.value })}
+          value={form.branch}
+          onChange={(e) => setForm({ ...form, branch: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <input
           placeholder="Monthly salary"
-          value={form.salario_actual}
-          onChange={(e) => setForm({ ...form, salario_actual: e.target.value })}
+          value={form.current_salary}
+          onChange={(e) => setForm({ ...form, current_salary: e.target.value })}
           className="rounded-md border border-line px-3 py-2 text-sm"
         />
         <button
@@ -156,7 +156,7 @@ export function UsersPage() {
                   </td>
                   <td className="px-4 py-3">{u.username}</td>
                   <td className="px-4 py-3">{ROLE_LABEL[u.rol]}</td>
-                  <td className="px-4 py-3">{u.sucursal ?? "—"}</td>
+                  <td className="px-4 py-3">{u.branch ?? "—"}</td>
                 </tr>
               ))
             )}
