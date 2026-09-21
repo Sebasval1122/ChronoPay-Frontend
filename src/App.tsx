@@ -9,6 +9,7 @@ import { AttendancePage } from "./pages/AttendancePage";
 import { PayrollPage } from "./pages/PayrollPage";
 import { UsersPage } from "./pages/UsersPage";
 import { BranchesPage } from "./pages/BranchesPage";
+import { DashboardPage } from "./pages/DashboardPage";
 
 export default function App() {
   return (
@@ -28,6 +29,14 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/asistencia" element={<AttendancePage />} />
             <Route path="/nomina" element={<PayrollPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["admin_general", "gerente_sucursal"]}>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/usuarios"
               element={

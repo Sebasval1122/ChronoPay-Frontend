@@ -70,6 +70,26 @@ export interface Payroll {
   detalles: PayrollDetail[];
 }
 
+export interface DashboardBranch {
+  branch_id: number;
+  branch_name: string;
+  active_employee_count: number;
+  real_payroll_total: string | number;
+  budgeted_amount: string | number | null;
+  budget_difference: string | number | null;
+  total_overtime_hours: string | number;
+  work_events_count: number;
+  attendance_records_count: number;
+}
+
+export interface Budget {
+  id: number;
+  branch: number;
+  year: number;
+  month: number;
+  budgeted_amount: string | number;
+}
+
 export interface LoginResponse {
   access: string;
   refresh: string;

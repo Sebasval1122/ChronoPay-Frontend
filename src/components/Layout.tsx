@@ -12,6 +12,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/", label: "Home", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
   { to: "/asistencia", label: "Attendance", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
   { to: "/nomina", label: "Payroll", allowedRoles: ["admin_general", "gerente_sucursal", "empleado"] },
+  { to: "/dashboard", label: "Dashboard", allowedRoles: ["admin_general", "gerente_sucursal"] },
   { to: "/usuarios", label: "Users", allowedRoles: ["admin_general", "gerente_sucursal"] },
   { to: "/sucursales", label: "Branches", allowedRoles: ["admin_general"] },
 ];
