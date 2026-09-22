@@ -1,6 +1,16 @@
 export type Role = "admin_general" | "gerente_sucursal" | "employee";
 export type RequestType = "vacaciones" | "permission";
 export type RequestStatus = "pendiente" | "approved" | "rechazada";
+export type ChronoNotificationType = "payroll" | "time_off" | "attendance";
+
+export interface ChronoNotification {
+  id: number;
+  type: ChronoNotificationType;
+  message: string;
+  link: string;
+  read: boolean;
+  created_at: string;
+}
 
 export interface TimeOffRequest {
   id: number;

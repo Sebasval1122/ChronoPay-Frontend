@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import type { Role } from "../api/types";
+import { NotificationBell } from "./NotificationBell";
 
 interface NavItem {
   to: string;
@@ -74,6 +75,9 @@ export function Layout() {
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl px-8 py-8">
+          <div className="mb-4 flex justify-end">
+            <NotificationBell />
+          </div>
           <Outlet />
         </div>
       </main>
