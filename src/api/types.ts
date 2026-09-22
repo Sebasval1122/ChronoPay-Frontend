@@ -1,4 +1,21 @@
 export type Role = "admin_general" | "gerente_sucursal" | "employee";
+export type RequestType = "vacaciones" | "permission";
+export type RequestStatus = "pendiente" | "approved" | "rechazada";
+
+export interface TimeOffRequest {
+  id: number;
+  requester: number;
+  requester_name: string;
+  type: RequestType;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: RequestStatus;
+  reviewed_by: number | null;
+  review_comment: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface User {
   id: number;

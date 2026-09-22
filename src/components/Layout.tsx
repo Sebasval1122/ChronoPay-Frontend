@@ -15,6 +15,8 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", allowedRoles: ["admin_general", "gerente_sucursal"] },
   { to: "/usuarios", label: "Users", allowedRoles: ["admin_general", "gerente_sucursal"] },
   { to: "/sucursales", label: "Branches", allowedRoles: ["admin_general"] },
+  { to: "/solicitudes", label: "Time off", allowedRoles: ["admin_general", "gerente_sucursal", "employee"] },
+  { to: "/reportes", label: "Reports", allowedRoles: ["admin_general", "gerente_sucursal", "employee"] },
 ];
 
 const ROLE_LABEL: Record<Role, string> = {

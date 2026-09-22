@@ -10,6 +10,8 @@ import { PayrollPage } from "./pages/PayrollPage";
 import { UsersPage } from "./pages/UsersPage";
 import { BranchesPage } from "./pages/BranchesPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { TimeOffRequestsPage } from "./pages/TimeOffRequestsPage";
+import { ReportsPage } from "./pages/ReportsPage";
 
 export default function App() {
   return (
@@ -29,6 +31,8 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/asistencia" element={<AttendancePage />} />
             <Route path="/nomina" element={<PayrollPage />} />
+            <Route path="/solicitudes" element={<TimeOffRequestsPage />} />
+            <Route path="/reportes" element={<ReportsPage />} />  
             <Route
               path="/dashboard"
               element={
